@@ -1,18 +1,21 @@
 package generator
 
 import (
-	"os"
-	"io/ioutil"
-	"strings"
-	"html/template"
-	"fmt"
 	"errors"
-	"github.com/cnam/md2html/parser"
+	"fmt"
+	"html/template"
+	"io/ioutil"
+	"os"
+	"path"
+	"strings"
+
+	"../parser"
 )
 
 //Page represent page for generate
 type Page struct {
 	Title    string
+	FileName string
 	Url      string
 	Path     string
 	Items    []*Page
@@ -37,7 +40,7 @@ func (d *Dir) NewPage(f os.FileInfo) (*Page, error) {
 
 	cont, err := ioutil.ReadFile(getPath(d.mdDir, f.Name()))
 
-	if (err != nil) {
+	if err != nil {
 		return nil, err
 	}
 
@@ -45,28 +48,40 @@ func (d *Dir) NewPage(f os.FileInfo) (*Page, error) {
 	html := prs.Parse(cont)
 
 	p := &Page{}
+	ext := path.Ext(f.Name())
+	p.FileName = strings.Replace(f.Name(), ext, "", -1)
 	p.Title = title
 	p.Seo = &Seo{
-		Title: "",
+		Title:       "",
 		Description: "",
-		Keywords: "",
+		Keywords:    "",
 	}
 	p.Body = template.HTML(html)
-	p.Path = getPath(d.htmlDir, getUrl(p.Title) + ".html")
-	p.Url = getPath(d.path, getUrl(p.Title) + ".html")
+	p.Path = getPagePath(p, d, false)
+	p.Url = getPagePath(p, d, true)
 	p.Template = d.template
+
+	fmt.Printf("new page: %s, %s, %s\n", p.Title, p.FileName, p.Path)
 
 	return p, nil
 }
 
-// getUrl returns generated url
-func getUrl(title string) string {
-	url := title
-	if title == "README" {
-		url = "index"
+func getPagePath(page *Page, d *Dir, url bool) string {
+	filename := page.FileName + ".html"
+	prefix := ""
+
+	if !url {
+		prefix = d.htmlDir
+		if prefix != "" {
+			prefix += "/"
+		}
 	}
 
-	return url
+	if d.longDirName == "" {
+		return prefix + filename
+	} else {
+		return prefix + d.longDirName + "_" + filename
+	}
 }
 
 // save saving current page to filesystem
@@ -75,7 +90,7 @@ func (p *Page) save(d *Dir) error {
 	p.Items = d.pages
 	file, err := os.Create(p.Path)
 
-	if (err != nil) {
+	if err != nil {
 		return err
 	}
 
@@ -88,7 +103,7 @@ func (p *Page) save(d *Dir) error {
 func (p *Page) render(f *os.File) error {
 	t, err := template.ParseFiles(p.Template)
 
-	if (err != nil) {
+	if err != nil {
 		return err
 	}
 

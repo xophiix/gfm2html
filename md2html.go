@@ -1,12 +1,13 @@
 package main // import "github.com/cnam/md2html"
 
 import (
-	"github.com/codegangsta/cli"
 	"os"
-	"github.com/cnam/md2html/generator"
+
+	"./generator"
+	"github.com/codegangsta/cli"
 )
 
-const APP_VER  = "0.2.4"
+const APP_VER = "0.2.4"
 
 func main() {
 	app := cli.NewApp()
@@ -31,14 +32,14 @@ func main() {
 			Usage: "Template for generated documentation",
 		},
 		cli.StringFlag{
-			Name:  "path, p",
-			Value: "/docs",
-			Usage: "Path eg site example ",
-		},
-		cli.StringFlag{
 			Name:  "sidebar, s",
 			Value: "_Sidebar.md",
 			Usage: "Path to sidebar file",
+		},
+		cli.StringFlag{
+			Name:  "tocOutput, f",
+			Value: "_toc.js",
+			Usage: "OutputPath to toc data file",
 		},
 	}
 	app.Authors = []cli.Author{
@@ -53,4 +54,3 @@ func main() {
 	}
 	app.Run(os.Args)
 }
-

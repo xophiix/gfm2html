@@ -1,8 +1,10 @@
 package generator
 
 import (
-	"github.com/codegangsta/cli"
 	"fmt"
+	"strings"
+
+	"github.com/codegangsta/cli"
 )
 
 // GenerateDoc generating new documentation
@@ -10,8 +12,8 @@ func GenerateDoc(c *cli.Context) {
 	md := c.String("input")
 	html := c.String("output")
 	t := c.String("template")
-	path := c.String("path")
 	sidebar := c.String("sidebar")
+	tocOutput := c.String("tocOutput")
 
 	if md == "" {
 		cli.ShowAppHelp(c)
@@ -19,18 +21,30 @@ func GenerateDoc(c *cli.Context) {
 	}
 
 	fmt.Println("Begin generate")
-	sb, _ := NewSidebar(sidebar);
-	parent := &Dir{sidebar: sb};
-
-	dir, err := NewDir(md, html, t, path)
-	if (err != nil) {
-		fmt.Printf("Error read dir %s\n \t%s\n", dir.mdDir, err.Error())
+	sb, err := NewSidebar(sidebar)
+	if err != nil {
+		fmt.Println("Sidebar not exists and will autogenerate from dir hierachy")
 	}
-	err = dir.read()
 
+	parent := &Dir{sidebar: sb}
+
+	splits := strings.Split(md, "/")
+	dir, err := NewDir(splits[len(splits)-1], md, html, t, "")
 	if err != nil {
 		fmt.Printf("Error read dir %s\n \t%s\n", dir.mdDir, err.Error())
 	}
+	err = dir.read()
+	if err != nil {
+		fmt.Printf("Error read dir %s\n \t%s\n", dir.mdDir, err.Error())
+	}
+
+	if tocOutput != "" {
+		err = dir.GenerateToc(tocOutput)
+		if err != nil {
+			fmt.Printf("Error generate toc file %s: %s\n", tocOutput, err.Error())
+		}
+	}
+
 	err = dir.write(parent)
 
 	if err != nil {
@@ -39,4 +53,3 @@ func GenerateDoc(c *cli.Context) {
 
 	fmt.Println("End generate")
 }
-

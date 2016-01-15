@@ -1,42 +1,43 @@
 package generator
 
 import (
+	"encoding/json"
 	"fmt"
-	"os"
 	"html/template"
-	"strings"
-	"errors"
+	"io/ioutil"
+	"os"
 )
 
 // Dir represents file directory
 type Dir struct {
-	dir      []*Dir
-	mdDir    string
-	htmlDir  string
-	pages    []*Page
-	sidebar  template.HTML
-	template string
-	path     string
-	static   []*StaticFile
+	name        string
+	dir         []*Dir
+	mdDir       string
+	htmlDir     string
+	longDirName string
+	pages       []*Page
+	sidebar     template.HTML
+	template    string
+	static      []*StaticFile
 }
 
 // NewDir returns new dir
-func NewDir(md, html, t, path string) (*Dir, error) {
-	if strings.HasPrefix(".", md) {
-		return nil, errors.New("Ignored directory")
-	}
+func NewDir(name, md, html, t, longDirName string) (*Dir, error) {
+	fmt.Println("new dir", html, longDirName)
 
 	return &Dir{
-		mdDir: md,
-		htmlDir: html,
-		template: t,
-		path: path,
+		name:        name,
+		mdDir:       md,
+		htmlDir:     html,
+		template:    t,
+		longDirName: longDirName,
 	}, nil
 }
+
 // read reading all child directory and pages from dir
 func (d *Dir) read() error {
 	fmt.Printf("Read dir: %s\n", d.mdDir)
-	osd, err := os.Open(d.mdDir);
+	osd, err := os.Open(d.mdDir)
 	defer osd.Close()
 
 	fi, err := osd.Readdir(-1)
@@ -47,31 +48,33 @@ func (d *Dir) read() error {
 
 	for _, f := range fi {
 		if f.Mode().IsDir() {
-			dir, err := NewDir(getPath(d.mdDir, f.Name()),
-				getPath(d.htmlDir, f.Name()),
+			dir, err := NewDir(f.Name(),
+				getPath(d.mdDir, f.Name()),
+				d.htmlDir,
 				d.template,
-				getPath(d.path, f.Name()),
+				getUnderscorePath(d.longDirName, f.Name()),
 			)
-			if (err == nil) {
+			if err == nil {
 				dir.read()
 				d.addDir(dir)
 			}
 		}
 		if f.Mode().IsRegular() {
 			page, err := d.NewPage(f)
-			if (err == nil) {
+			if err == nil {
 				d.addPage(page)
 			} else {
 				st, err := d.NewStatic(f)
-				if (err == nil) {
-					d.addStatic(st);
+				if err == nil {
+					d.addStatic(st)
 				}
 			}
 		}
 	}
 
-	return nil;
+	return nil
 }
+
 // write writes content to html directory
 func (d *Dir) write(parent *Dir) error {
 	err := os.MkdirAll(d.htmlDir, 0775)
@@ -102,7 +105,7 @@ func (d *Dir) write(parent *Dir) error {
 		}
 	}
 
-	for _, st := range d.static  {
+	for _, st := range d.static {
 		err := st.write(d)
 		if err != nil {
 			return err
@@ -110,6 +113,14 @@ func (d *Dir) write(parent *Dir) error {
 	}
 
 	return nil
+}
+
+func getUnderscorePath(parentName, name string) string {
+	if parentName == "" {
+		return name
+	} else {
+		return parentName + "_" + name
+	}
 }
 
 // addPage adding new page to current dir
@@ -129,5 +140,42 @@ func (d *Dir) addStatic(s *StaticFile) {
 
 //  getPath returns concat string for current dir path
 func getPath(c, f string) string {
-	return fmt.Sprintf("%s%s%s", c, string(os.PathSeparator), f)
+	if c != "" {
+		return fmt.Sprintf("%s%s%s", c, string(os.PathSeparator), f)
+	} else {
+		return f
+	}
+}
+
+type TocData struct {
+	Link     string
+	Title    string
+	Children []*TocData
+}
+
+func (d *Dir) GenerateToc(outputPath string) error {
+	toc := &TocData{"toc", "toc", make([]*TocData, 0)}
+	generateToc(d, toc)
+
+	bytes, err := json.Marshal(toc)
+	if err != nil {
+		return err
+	}
+
+	tocStr := fmt.Sprintf("toc=%s", bytes)
+	return ioutil.WriteFile(outputPath, []byte(tocStr), 0644)
+}
+
+func generateToc(d *Dir, toc *TocData) {
+	for _, p := range d.pages {
+		pageToc := &TocData{p.Url, p.Title, nil}
+		toc.Children = append(toc.Children, pageToc)
+	}
+
+	for _, dir := range d.dir {
+		dirToc := &TocData{"null", dir.name, make([]*TocData, 0)}
+		toc.Children = append(toc.Children, dirToc)
+
+		generateToc(dir, dirToc)
+	}
 }
