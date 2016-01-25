@@ -31,6 +31,10 @@ type Seo struct {
 	Keywords    string
 }
 
+func getTitleByFileName(name string) string {
+	return strings.Replace(strings.Replace(name, ".md", "", 1), "_", " ", -1)
+}
+
 // NewPage create new page
 func (d *Dir) NewPage(f os.FileInfo) (*Page, error) {
 	prs, err := parser.New(f.Name())
@@ -44,13 +48,18 @@ func (d *Dir) NewPage(f os.FileInfo) (*Page, error) {
 		return nil, err
 	}
 
-	title := prs.GetTitle(f.Name())
-	html := prs.Parse(cont)
+	html, title := prs.Parse(cont)
+	if title == "" {
+		title = getTitleByFileName(f.Name())
+	}
 
 	p := &Page{}
 	ext := path.Ext(f.Name())
 	p.FileName = strings.Replace(f.Name(), ext, "", -1)
 	p.Title = title
+
+	fmt.Println(f.Name(), "'s title=", title)
+
 	p.Seo = &Seo{
 		Title:       "",
 		Description: "",

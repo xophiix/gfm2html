@@ -1,13 +1,13 @@
 package parser
+
 import (
-	"strings"
 	"errors"
+	"strings"
 )
 
 // Parser represents parser interface for other
 type Parser interface {
-	GetTitle(string) string
-	Parse([]byte) string
+	Parse([]byte) (string, string)
 }
 
 var NotFound = errors.New("Parser not found")

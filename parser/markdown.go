@@ -1,18 +1,18 @@
 package parser
 
 import (
-	"strings"
-	"github.com/russross/blackfriday"
-	"github.com/microcosm-cc/bluemonday"
-	"github.com/shurcooL/sanitized_anchor_name"
-	"regexp"
 	"bytes"
-	"golang.org/x/net/html"
 	"fmt"
+	"regexp"
+	"strings"
+
+	"github.com/microcosm-cc/bluemonday"
+	"github.com/russross/blackfriday"
+	"github.com/shurcooL/sanitized_anchor_name"
+	"golang.org/x/net/html"
 )
 
 type MdParser struct {
-
 }
 
 type renderer struct {
@@ -23,11 +23,17 @@ func NewMdParser() *MdParser {
 	return &MdParser{}
 }
 
-func (prs *MdParser) GetTitle(name string) string {
-	return strings.Replace(strings.Replace(name, ".md", "", 1), "_", " ", -1)
+// removeStuf trims spaces, removes new lines and code tag from a string
+func removeStuf(s string) string {
+	res := strings.Replace(s, "\n", "", -1)
+	res = strings.Replace(res, "<code>", "", -1)
+	res = strings.Replace(res, "</code>", "", -1)
+	res = strings.TrimSpace(res)
+
+	return res
 }
 
-func (prs *MdParser) Parse(d []byte) string {
+func (prs *MdParser) Parse(d []byte) (string, string) {
 	renderer := &renderer{Html: blackfriday.HtmlRenderer(0, "", "").(*blackfriday.Html)}
 
 	// Parser extensions for GitHub Flavored Markdown.
@@ -56,9 +62,29 @@ func (prs *MdParser) Parse(d []byte) string {
 	html = strings.Replace(html, "README.md", "index.html", -1)
 	html = strings.Replace(html, ".md", ".html", -1)
 
-	return html
-}
+	// extract title from 'h1' tag
+	re := `<h1>\s*<a.*>\s*.*\s*</a>\s*(?P<name>.*?)\s*</h1>`
+	r := regexp.MustCompile(re)
+	title := ""
 
+	groups := make(map[string]string)
+	for _, match := range r.FindAllStringSubmatch(html, -1) {
+		// fill map for groups
+		for i, name := range r.SubexpNames() {
+			if i == 0 || name == "" {
+				continue
+			}
+
+			fmt.Println("match:", i, match[i])
+			groups[name] = removeStuf(match[i])
+		}
+
+		title = removeStuf(groups["name"])
+		break
+	}
+
+	return html, title
+}
 
 // GitHub Flavored Markdown header with clickable and hidden anchor.
 func (_ *renderer) Header(out *bytes.Buffer, text func() bool, level int, _ string) {

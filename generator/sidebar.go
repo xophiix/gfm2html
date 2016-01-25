@@ -31,7 +31,8 @@ func generateSidebar(mdSidebar string) (template.HTML, error) {
 		return "", err
 	}
 
-	sidebar = template.HTML(prs.Parse(file))
+	html, _ := prs.Parse(file)
+	sidebar = template.HTML(html)
 
 	return sidebar, nil
 }
