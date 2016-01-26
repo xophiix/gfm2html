@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/microcosm-cc/bluemonday"
@@ -83,7 +84,63 @@ func (prs *MdParser) Parse(d []byte) (string, string) {
 		break
 	}
 
+	// auto generate toc
+	tocMd := grabToc(html)
+	unsanitized = blackfriday.Markdown([]byte(tocMd), renderer, extensions)
+	tocHtml := string(p.SanitizeBytes(unsanitized))
+
+	if strings.Index(html, "[TOC]") >= 0 {
+		html = strings.Replace(html, "[TOC]", tocHtml, 1)
+	} else {
+		html = tocHtml + html
+	}
+
+	fmt.Println("tocMd=", tocMd)
+
 	return html, title
+}
+
+// Escapes special characters
+func escapeSpecChars(s string) string {
+	specChar := []string{"\\", "`", "*", "_", "{", "}", "#", "+", "-", ".", "!"}
+	res := s
+
+	for _, c := range specChar {
+		res = strings.Replace(res, c, "\\"+c, -1)
+	}
+	return res
+}
+
+func grabToc(html string) string {
+	re := `(?si)<h(?P<num>[1-6])>\s*` +
+		`<a\s*name="[^"]*"\s*class="anchor"\s*` +
+		`href="(?P<href>[^"]*)"[^>]*>\s*` +
+		`<span[^<*]*</span>\s*</a>\s*(?P<name>.*?)</h`
+
+	r := regexp.MustCompile(re)
+
+	toc := ""
+	groups := make(map[string]string)
+	for _, match := range r.FindAllStringSubmatch(html, -1) {
+		// fill map for groups
+		for i, name := range r.SubexpNames() {
+			if i == 0 || name == "" {
+				continue
+			}
+			groups[name] = removeStuf(match[i])
+		}
+
+		// format result
+		n, _ := strconv.Atoi(groups["num"])
+		link := groups["href"]
+		toc_item := strings.Repeat("  ", n) + "* " +
+			"[" + escapeSpecChars(removeStuf(groups["name"])) + "]" +
+			"(" + link + ")"
+
+		toc = toc + toc_item + "\n"
+	}
+
+	return toc
 }
 
 // GitHub Flavored Markdown header with clickable and hidden anchor.
