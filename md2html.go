@@ -41,6 +41,10 @@ func main() {
 			Value: "_toc.js",
 			Usage: "OutputPath to toc data file",
 		},
+		cli.StringFlag{
+			Name:  "optionFile, p",
+			Usage: "Generate option config json file",
+		},
 	}
 	app.Authors = []cli.Author{
 		cli.Author{

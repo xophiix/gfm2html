@@ -173,7 +173,17 @@ func generateToc(d *Dir, toc *TocData) {
 	}
 
 	for _, dir := range d.dir {
-		dirToc := &TocData{"null", dir.name, make([]*TocData, 0)}
+		displayDirName := dir.name
+
+		if generateOptions != nil {
+			s := generateOptions.FolderAliases[dir.name]
+			if s != "" {
+				fmt.Printf("replace folder %s with alias %s\n", dir.name, s)
+				displayDirName = s
+			}
+		}
+
+		dirToc := &TocData{"null", displayDirName, make([]*TocData, 0)}
 		toc.Children = append(toc.Children, dirToc)
 
 		generateToc(dir, dirToc)

@@ -1,11 +1,28 @@
 package generator
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"strings"
 
 	"github.com/codegangsta/cli"
 )
+
+type GenerateOptions struct {
+	FolderAliases map[string]string
+}
+
+var generateOptions *GenerateOptions
+
+func (opts *GenerateOptions) parseGenerateOptions(path string) error {
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(content, opts)
+}
 
 // GenerateDoc generating new documentation
 func GenerateDoc(c *cli.Context) {
@@ -14,10 +31,19 @@ func GenerateDoc(c *cli.Context) {
 	t := c.String("template")
 	sidebar := c.String("sidebar")
 	tocOutput := c.String("tocOutput")
+	optionFile := c.String("optionFile")
 
 	if md == "" {
 		cli.ShowAppHelp(c)
 		return
+	}
+
+	if optionFile != "" {
+		generateOptions = &GenerateOptions{make(map[string]string)}
+		err := generateOptions.parseGenerateOptions(optionFile)
+		if err != nil {
+			fmt.Println("Option file provided but parse failed: ", optionFile, err)
+		}
 	}
 
 	fmt.Println("Begin generate")
