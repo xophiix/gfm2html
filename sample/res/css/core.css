@@ -1,0 +1,89 @@
+div.header-wrapper { width: 100%; height: 100px; position: fixed; z-index: 30; }
+div.header { width: 100%; height: 60px; background: #222c37; }
+div.header .content { min-width: 860px; margin: 0 auto; padding: 0 20px; position: relative; }
+div.header .content .menu { width: 100%; float: left; margin: 0 -170px 0 0; position: relative; }
+div.header .content .spacer { margin: 0 170px 0 0; }
+div.header .menu .logo { width: 271px; height: 34px; float: left; padding: 13px 0 0 0; }
+div.header .menu ul { float: right; list-style-type: none; margin: 10px 0; padding: 0 30px 0 0; }
+div.header .menu ul li { float: left; margin: 0 1px 0 0; font-size: 1em; font-family: 'avalon', sans-serif; }
+div.header .menu ul li a { height: 40px; line-height: 40px; display: block; float: left; margin: 0 15px; text-decoration: none; cursor: pointer; color: #fff; -webkit-transition: color .15s; -moz-transition: color .15s; -ms-transition: color .15s; -o-transition: color .15s; transition: color .15s; }
+div.header .menu ul li a:hover { color: #00cccc; }
+div.header .menu ul li a.selected { color: #00cccc; position: relative; font-family: 'avalonbold', sans-serif; line-height: 44px; }
+div.header .menu ul li a.selected:after { content: ''; display: block; width: 100%; height: 1px; position: absolute; bottom: 11px; left: 0; background: #00cccc; }
+div.header div.search-form { float: right; position: relative; }
+div.header div.search-form input.field { width: 350px; line-height: 18px; padding: 20px 50px 20px 20px; border: 0; margin: 0; -webkit-border-radius: 0; -moz-border-radius: 0; border-radius: 0; }
+div.header div.search-form input.field:focus { background: #fff !important; }
+div.header .more { width: 170px; height: 60px; float: right; position: relative; }
+div.header .more .filler { width: 800%; height: 60px; background: #00cccc; position: absolute; z-index: 14; left: 0px; top: 0; }
+div.header .more ul { float: right; position: relative; z-index: 15; list-style: none; margin: 15px 15px 15px 0; }
+div.header .more ul li { float: left; margin: 0 0 0 20px; font-size: 1em; font-family: 'avalon', sans-serif; }
+
+div.master-wrapper { min-width: 860px; margin: 0 auto 40px auto; padding: 100px 0 20px 0; }
+div.content-wrap { width: 100%; float: right; margin: 0 0 0 -380px; position: relative; }
+div.content-block { margin: 0 0 0 380px; }
+div.content-wrap div.content { min-width: 460px; padding: 40px 40px 0 0; }
+div.content-wrap div.content div.section { padding: 0 10px; margin: 0 0 50px 0; min-height: 200px; }
+
+div.footer-wrapper { width: 100%; height: 40px; margin: 0 auto; }
+div.footer { height: 40px; line-height: 40px; margin: 0 10px; font-size: 0.8125em; border-top: #e6e6e6 1px solid; }
+div.footer div.copy { float: left; }
+div.footer div.menu { float: right; }
+div.footer div.menu a { color: #455463; margin: 0 0 0 15px; }
+
+div.sidebar { width: 340px; margin: 0 40px 0 0; float: left; position: relative; z-index: 2; }
+div.sidebar-wrap { width: 339px; position: fixed; border-right: #e6e6e6 1px solid; }
+div.sidebar p { padding: 10px 20px; background: #222c37; margin: 0; }
+div.sidebar-menu h2 { margin: 20px 0; padding: 0 0 10px 0; border-bottom: #e6e6e6 1px solid; }
+div.sidebar-menu ul { list-style-type: none; margin: 0 0 20px 0; position: relative; }
+div.sidebar-menu ul li { font-size: 0.875em; word-wrap: break-word; margin: 0 0 8px 0; line-height: 1.3em; padding: 0 0 0 22px; position: relative; }
+div.sidebar-menu ul li.nl span { cursor: pointer; }
+div.sidebar-menu ul li div.collapsed { background-position: -51px -61px; }
+div.sidebar-menu ul li div.expanded { background-position: -51px -95px; }
+div.sidebar-menu ul li a { display: block; color: #455463; word-wrap: break-word; text-decoration: none; }
+div.sidebar-menu ul li a:hover { text-decoration: underline; }
+div.sidebar-menu ul li a.current { background: #222c37; color: #fff; padding: 5px 8px; text-decoration: none; }
+div.sidebar-menu ul li ul { margin: 8px 0 8px 0; }
+div.sidebar-menu ul li ul li ul:before { left: -15px; }
+div.sidebar-menu ul li ul li div.arrow { left: 0; }
+div.sidebar-menu ul li ul li { font-size: 1em; padding: 0 0 0 22px; }
+div.sidebar-menu ul li ul li ul li { font-size: 1em;  }
+
+.content .section ul {  list-style-type: none; margin: 0 0 20px 0; }
+.content .section ul li, .content .section ol li ul li { padding: 0 0 3px 20px; background: none; position: relative; font-size: 0.875em; }
+.content .section ul li:before { content: "\2022"; font-size: 1.8em; position: absolute; top: 0; left: 0; color: #455463; }
+.content .section ul li ul, .content .section ul li ul li ul { margin: 0 0 5px 0; }
+.content .section ul li ul li, .content .section ul li ul li ul li, .content .section ol li ul li { font-size: 1em; }
+.content .section ol { margin: 0 0 20px 0; padding: 0 0 0 20px; }
+.content .section ol li { padding: 0 0 5px 0; font-size: 0.875em; }
+.content .section ul li ol { margin: 0 0 5px 0; }
+.content .section ul li ol li:before { display: none; }
+.content figure { margin: 0 0 30px 0; }
+.content figure img { margin: 0 0 10px 0; }
+.content figure figcaption { margin: 0 0 10px 0; font-size: 0.875em; color: #99a0a7; }
+
+div.header .content { padding: 0 0 0 20px; }
+div.header .content .menu { width: 100%; margin: 0; }
+div.header .content .spacer { margin: 0; }
+div.header .more { display: none; }
+div.header div.search-form input.field { width: 300px; }
+div.header .menu ul li:first-child { display: none; }
+div.content-wrap { margin: 0 0 0 -360px; }
+div.content-block { margin: 0 0 0 360px; }
+div.content-wrap div.content { padding: 20px 20px 0 0; }
+div.sidebar { margin: 0 20px 0 0; }
+div.footer-wrapper { height: auto; }
+div.footer { height: auto; line-height: 21px; padding: 10px 0 0 0; }
+div.footer div.copy, div.footer div.menu { float: none; }
+div.footer div.menu a { margin: 0 15px 0 0; }
+
+}
+
+div.master-wrapper { padding: 0 0 20px 0;  }
+div.header-wrapper { width: auto; position: relative; float: left; }
+div.sidebar-wrap { position: static; }
+div.content-wrap { width: 480px; float: left; margin: 0; }
+div.content-block { margin: 0; }
+
+}
+  
+}
