@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"html/template"
 	"io/ioutil"
+	"net/url"
 	"os"
 	"path"
+	"path/filepath"
+	"regexp"
 	"strings"
 
 	"../parser"
@@ -47,6 +50,8 @@ func (d *Dir) NewPage(f os.FileInfo) (*Page, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	cont = d.preprocessRelativeResUrl(cont)
 
 	html, title := prs.Parse(cont)
 	if title == "" {
@@ -117,4 +122,42 @@ func (p *Page) render(f *os.File) error {
 	}
 
 	return t.Execute(f, p)
+}
+
+func (d *Dir) preprocessRelativeResUrl(md []byte) []byte {
+
+	re := `\[(.*)\]\((.*)\)`
+	r := regexp.MustCompile(re)
+
+	adjustedMatches := make(map[string]string)
+
+	mdStr := string(md)
+	for _, match := range r.FindAllStringSubmatch(mdStr, -1) {
+		desc := match[1]
+		resUrl := match[2]
+
+		_, err := url.Parse(resUrl)
+
+		if err != nil || resUrl[0] == '.' {
+			absPath := filepath.Clean(d.mdDir + string(filepath.Separator) + resUrl)
+			htmlRelPathToRes, err := filepath.Rel(d.htmlDir, absPath)
+			if err == nil {
+				htmlRelPathToRes = strings.Replace(htmlRelPathToRes, "\\", "/", -1)
+				fmt.Printf("replcae res url `%s` to `%s`\n", resUrl, htmlRelPathToRes)
+				adjustedMatches[match[0]] = fmt.Sprintf("[%s](%s)", desc, htmlRelPathToRes)
+			} else {
+				fmt.Println("filepath.Rel error: ", err)
+			}
+		}
+	}
+
+	return []byte(r.ReplaceAllStringFunc(mdStr, func(match string) string {
+		adjustedMatch, exist := adjustedMatches[match]
+		if !exist {
+			return match
+		}
+
+		//fmt.Printf("replace %s to %s\n", match, adjustedMatch)
+		return adjustedMatch
+	}))
 }
