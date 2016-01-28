@@ -132,12 +132,14 @@ func grabToc(html string) string {
 
 		// format result
 		n, _ := strconv.Atoi(groups["num"])
-		link := groups["href"]
-		toc_item := strings.Repeat("  ", n) + "* " +
-			"[" + escapeSpecChars(removeStuf(groups["name"])) + "]" +
-			"(" + link + ")"
+		if n > 1 {
+			link := groups["href"]
+			toc_item := strings.Repeat("  ", n-1) + "* " +
+				"[" + escapeSpecChars(removeStuf(groups["name"])) + "]" +
+				"(" + link + ")"
 
-		toc = toc + toc_item + "\n"
+			toc = toc + toc_item + "\n"
+		}
 	}
 
 	return toc
