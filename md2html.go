@@ -1,4 +1,4 @@
-package main // import "github.com/cnam/md2html"
+package main
 
 import (
 	"os"
@@ -7,12 +7,12 @@ import (
 	"github.com/codegangsta/cli"
 )
 
-const APP_VER = "0.2.4"
+const APP_VER = "0.0.1"
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "md2html"
-	app.Email = "support@leanlabs.io"
+	app.Name = "gfm2html"
+	app.Email = "xophiix@gmail.com"
 	app.Usage = "Github generator html pages from markdown wiki"
 	app.Version = APP_VER
 	app.Action = generator.GenerateDoc
@@ -32,11 +32,6 @@ func main() {
 			Usage: "Template for generated documentation",
 		},
 		cli.StringFlag{
-			Name:  "sidebar, s",
-			Value: "_Sidebar.md",
-			Usage: "Path to sidebar file",
-		},
-		cli.StringFlag{
 			Name:  "tocOutput, f",
 			Value: "_toc.js",
 			Usage: "OutputPath to toc data file",
@@ -54,6 +49,10 @@ func main() {
 		cli.Author{
 			Name:  "cnam",
 			Email: "cnam812@gmail.com",
+		},
+		cli.Author{
+			Name:  "xophiix",
+			Email: "xophiix@gmail.com",
 		},
 	}
 	app.Run(os.Args)

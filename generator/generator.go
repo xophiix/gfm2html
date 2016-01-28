@@ -29,7 +29,6 @@ func GenerateDoc(c *cli.Context) {
 	md := c.String("input")
 	html := c.String("output")
 	t := c.String("template")
-	sidebar := c.String("sidebar")
 	tocOutput := c.String("tocOutput")
 	optionFile := c.String("optionFile")
 
@@ -47,13 +46,6 @@ func GenerateDoc(c *cli.Context) {
 	}
 
 	fmt.Println("Begin generate")
-	sb, err := NewSidebar(sidebar)
-	if err != nil {
-		fmt.Println("Sidebar not exists and will autogenerate from dir hierachy")
-	}
-
-	parent := &Dir{sidebar: sb}
-
 	splits := strings.Split(md, "/")
 	dir, err := NewDir(splits[len(splits)-1], md, html, t, "")
 	if err != nil {
@@ -71,7 +63,7 @@ func GenerateDoc(c *cli.Context) {
 		}
 	}
 
-	err = dir.write(parent)
+	err = dir.write()
 
 	if err != nil {
 		fmt.Printf("Error write dir %s\n", dir.htmlDir)

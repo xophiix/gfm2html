@@ -76,19 +76,10 @@ func (d *Dir) read() error {
 }
 
 // write writes content to html directory
-func (d *Dir) write(parent *Dir) error {
+func (d *Dir) write() error {
 	err := os.MkdirAll(d.htmlDir, 0775)
 	if err != nil {
 		return err
-	}
-	sd, err := NewSidebar(getPath(d.mdDir, "_Sidebar.md"))
-
-	if err == nil {
-		fmt.Printf("Create new sidebar \n\t%s\n", d.mdDir)
-		d.sidebar = sd
-	} else {
-		fmt.Printf("Sidebar not found \n\t%s\n", d.mdDir)
-		d.sidebar = parent.sidebar
 	}
 
 	for _, p := range d.pages {
@@ -99,7 +90,7 @@ func (d *Dir) write(parent *Dir) error {
 	}
 
 	for _, dir := range d.dir {
-		err := dir.write(d)
+		err := dir.write()
 		if err != nil {
 			return err
 		}
