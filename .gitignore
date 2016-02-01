@@ -3,3 +3,4 @@ md2html.iml
 bin
 md2html
 *.exe
+test/

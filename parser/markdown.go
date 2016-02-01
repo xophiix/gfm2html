@@ -60,8 +60,6 @@ func (prs *MdParser) Parse(d []byte) (string, string) {
 	p.AllowDataURIImages()
 
 	html := string(p.SanitizeBytes(unsanitized))
-	html = strings.Replace(html, "README.md", "index.html", -1)
-	html = strings.Replace(html, ".md", ".html", -1)
 
 	// extract title from 'h1' tag
 	re := `<h1>\s*<a.*>\s*.*\s*</a>\s*(?P<name>.*?)\s*</h1>`
